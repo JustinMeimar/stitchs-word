@@ -19,23 +19,26 @@ const checkGuessComplete = (container) => {
   return Array.from(inputs).every((input) => input.value.trim() !== "");
 };
 
-
 const colorInputs = (container) => {
   const inputs = container.querySelectorAll("input");
   Array.from(inputs).forEach((input, index) => {
-    const currentLetter = input.value.toLowerCase();
+    const currentLetter = input.value.trim().toLowerCase();
     const secretLetter = secretWord[index].toLowerCase();
 
+    if (!currentLetter || currentLetter.length !== 1 || !/^[a-z]$/.test(currentLetter)) {
+      input.style.borderColor = "gray"; // Neutral color for invalid input
+      return;
+    }
+
     if (currentLetter === secretLetter) {
-      input.style.borderColor = "green";
-    } else if (currentLetter < secretLetter) {
-      input.style.borderColor = "#70d9e7"; // blue
+      input.style.borderColor = "green"; // Correct letter
+    } else if (currentLetter.charCodeAt(0) < secretLetter.charCodeAt(0)) {
+      input.style.borderColor = "#70d9e7"; // Blue: Current letter is less than secret letter
     } else {
-      input.style.borderColor = "#ca3555"; // red
+      input.style.borderColor = "#ca3555"; // Red: Current letter is greater than secret letter
     }
   });
 };
-
 // const colorInputs = (container) => {
 //   const inputs = container.querySelectorAll("input");
 //   Array.from(inputs).forEach((input, index) => {
