@@ -22,3 +22,40 @@ button:hover {
     background-color: #45a049;
 }
 
+
+.letter-box {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  border: 2px solid #333;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+
+.letter-box:focus {
+  border-color: #007bff; /* Highlight on focus */
+  outline: none;
+}
+
+#guess-container {
+  display: flex;
+  flex-direction: column; /* Stack guess blocks vertically */
+  justify-content: center;
+  align-items: center;
+  gap: 10px; /* Space between rows */
+  margin: 20px;
+}
+
+.guess-block {
+  display: flex;
+  gap: 10px; /* Space between individual letter boxes in a row */
+}
+
+.direction-box {
+  font-size: 24px; /* Adjust size of the emoji */
+  margin-top: 10px;
+  text-align: center;
+}
+
