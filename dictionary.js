@@ -3784,7 +3784,7 @@ const dict = [
   "boiling",
   "borrow",
   "bouncing",
-  "reindeer",
+  "solve",
   "breathed",
   "brilliantly",
   "brood",
