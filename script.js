@@ -1,10 +1,9 @@
 const today = new Date()
-const options = { timeZone: "America/Denver" }
-const localDate = new Date(today.toLocaleString("en-US", options))
-const date = localDate.getDate()
-const month = localDate.getMonth() + 1
-const year = localDate.getFullYear()
+const date = today.getDate()
+const month = today.getMonth() + 1
+const year = today.getFullYear()
 const seed = 6592
+// Create an index for today's word
 const wordIndex = Number(date.toString() + month.toString() + year.toString()) % seed
 
 let secretWord = ""
@@ -12,26 +11,63 @@ let wordLength = 0
 let gameOver = false
 let guessCount = 0
 
+// Some iOS versions don't consistently fire the "input" event
+// as expected when using a virtual keyboard. To be safe, we add
+// multiple listeners: "input", "keyup", and "change".
+const addInputListeners = (input, container) => {
+  const handleInputEvent = () => {
+    if (gameOver) return
+    if (checkGuessComplete(container)) {
+      const guess = Array.from(container.querySelectorAll("input"))
+        .map((inp) => inp.value)
+        .join("")
+      if (guess === secretWord) {
+        gameOver = true
+        Array.from(container.querySelectorAll("input")).forEach((inp) => {
+          inp.style.borderColor = "green"
+        })
+        document.getElementById("message").textContent =
+          `You guessed the word in ${guessCount} guesses!`
+      } else {
+        colorInputs(container)
+        pushGuessBlock(wordLength)
+      }
+    }
+  }
+
+  // We listen to multiple events to ensure iOS Safari triggers our check
+  ;["input", "keyup", "change"].forEach((evt) => {
+    input.addEventListener(evt, (e) => {
+      if (gameOver) return
+      if (input.value !== "") {
+        const nextInput = input.nextElementSibling
+        if (nextInput) nextInput.focus()
+      }
+      handleInputEvent()
+    })
+  })
+}
+
 const checkGuessComplete = (container) => {
   const inputs = container.querySelectorAll("input")
-  return Array.from(inputs).every((input) => input.value.trim() !== "")
+  return Array.from(inputs).every((inp) => inp.value.trim() !== "")
 }
 
 const colorInputs = (container) => {
   const inputs = container.querySelectorAll("input")
-  Array.from(inputs).forEach((input, index) => {
-    const currentLetter = input.value.trim().toLowerCase()
+  Array.from(inputs).forEach((inp, index) => {
+    const currentLetter = inp.value.trim().toLowerCase()
     const secretLetter = secretWord[index].toLowerCase()
     if (!currentLetter || currentLetter.length !== 1 || !/^[a-z]$/.test(currentLetter)) {
-      input.style.borderColor = "gray"
+      inp.style.borderColor = "gray"
       return
     }
     if (currentLetter === secretLetter) {
-      input.style.borderColor = "green"
+      inp.style.borderColor = "green"
     } else if (currentLetter.charCodeAt(0) < secretLetter.charCodeAt(0)) {
-      input.style.borderColor = "#70d9e7"
+      inp.style.borderColor = "#70d9e7"
     } else {
-      input.style.borderColor = "#ca3555"
+      inp.style.borderColor = "#ca3555"
     }
   })
 }
@@ -44,29 +80,7 @@ const createGuessContainer = (numLetters) => {
     input.type = "text"
     input.maxLength = 1
     input.classList.add("letter-box")
-    input.addEventListener("input", (e) => {
-      if (gameOver) return
-      const currentInput = e.target
-      const nextInput = currentInput.nextElementSibling
-      if (nextInput && currentInput.value !== "") {
-        nextInput.focus()
-      }
-      if (checkGuessComplete(container)) {
-        const guess = Array.from(container.querySelectorAll("input"))
-          .map((inp) => inp.value)
-          .join("")
-        if (guess === secretWord) {
-          gameOver = true
-          Array.from(container.querySelectorAll("input")).forEach((inp) => {
-            inp.style.borderColor = "green"
-          })
-          document.getElementById("message").textContent = `You guessed the word in ${guessCount} guesses!`
-        } else {
-          colorInputs(container)
-          pushGuessBlock(wordLength)
-        }
-      }
-    })
+    addInputListeners(input, container)
     container.appendChild(input)
   }
   return container
@@ -80,6 +94,7 @@ const pushGuessBlock = (numLetters) => {
 }
 
 addEventListener("load", () => {
+  // Use the dictionary from dictionary.js
   secretWord = dict[wordIndex]
   wordLength = secretWord.length
   pushGuessBlock(wordLength)
