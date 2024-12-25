@@ -17,25 +17,29 @@ const addInputListeners = (input, container) => {
     if (gameOver || isHandlingInput) return;
     isHandlingInput = true;
 
-    if (checkGuessComplete(container)) {
-      const guess = Array.from(container.querySelectorAll("input"))
-        .map((inp) => inp.value)
-        .join("");
+    // Delay execution slightly to ensure DOM updates are completed
+    setTimeout(() => {
+      if (checkGuessComplete(container)) {
+        const guess = Array.from(container.querySelectorAll("input"))
+          .map((inp) => inp.value)
+          .join("");
 
-      if (guess === secretWord) {
-        gameOver = true;
-        Array.from(container.querySelectorAll("input")).forEach((inp) => {
-          inp.style.borderColor = "green";
-        });
-        document.getElementById("message").textContent =
-          `You guessed the word in ${guessCount} guesses!`;
-      } else if (!container.dataset.rowHandled) {
-        container.dataset.rowHandled = "true";
-        colorInputs(container);
-        pushGuessBlock(wordLength);
+        if (guess === secretWord) {
+          gameOver = true;
+          Array.from(container.querySelectorAll("input")).forEach((inp) => {
+            inp.style.borderColor = "green";
+            inp.disabled = true; // Disable all inputs on win
+          });
+          document.getElementById("message").textContent =
+            `You guessed the word in ${guessCount} guesses!`;
+        } else if (!container.dataset.rowHandled) {
+          container.dataset.rowHandled = "true"; // Mark this row as handled
+          colorInputs(container);
+          pushGuessBlock(wordLength);
+        }
       }
-    }
-    isHandlingInput = false;
+      isHandlingInput = false; // Reset flag
+    }, 50); // Use a short delay to ensure Safari processes inputs correctly
   };
 
   ["input", "keyup", "change"].forEach((evt) => {
