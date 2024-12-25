@@ -19,21 +19,38 @@ const checkGuessComplete = (container) => {
   return Array.from(inputs).every((input) => input.value.trim() !== "");
 };
 
+
 const colorInputs = (container) => {
   const inputs = container.querySelectorAll("input");
   Array.from(inputs).forEach((input, index) => {
-    const currentLetter = input.value;
-    const secretLetter = secretWord[index];
+    const currentLetter = input.value.toLowerCase();
+    const secretLetter = secretWord[index].toLowerCase();
 
     if (currentLetter === secretLetter) {
       input.style.borderColor = "green";
     } else if (currentLetter < secretLetter) {
-      input.style.borderColor = "#70d9e7";
+      input.style.borderColor = "#70d9e7"; // blue
     } else {
-      input.style.borderColor = "#ca3555";
+      input.style.borderColor = "#ca3555"; // red
     }
   });
 };
+
+// const colorInputs = (container) => {
+//   const inputs = container.querySelectorAll("input");
+//   Array.from(inputs).forEach((input, index) => {
+//     const currentLetter = input.value;
+//     const secretLetter = secretWord[index];
+//
+//     if (currentLetter === secretLetter) {
+//       input.style.borderColor = "green";
+//     } else if (currentLetter < secretLetter) {
+//       input.style.borderColor = "#70d9e7";
+//     } else {
+//       input.style.borderColor = "#ca3555";
+//     }
+//   });
+// };
 
 // Function to create the guess container
 const createGuessContainer = (numLetters) => {
