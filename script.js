@@ -1,52 +1,63 @@
-const today = new Date()
-const date = today.getDate()
-const month = today.getMonth() + 1
-const year = today.getFullYear()
+// const today = new Date()
+// const date = today.getDate()
+// const month = today.getMonth() + 1
+// const year = today.getFullYear()
+
+const today = new Date(Date.now());
+const date = today.getUTCDate();
+const month = today.getUTCMonth() + 1;
+const year = today.getUTCFullYear();
+
 const seed = 6592
-// Create an index for today's word
-const wordIndex = Number(date.toString() + month.toString() + year.toString()) % seed
+// const wordIndex = Number(date.toString() + month.toString() + year.toString()) % seed
+const wordIndex = Number(`${year}${month.toString().padStart(2, "0")}${date.toString().padStart(2, "0")}`) % seed;
 
 let secretWord = ""
 let wordLength = 0
 let gameOver = false
 let guessCount = 0
 
-// Some iOS versions don't consistently fire the "input" event
-// as expected when using a virtual keyboard. To be safe, we add
-// multiple listeners: "input", "keyup", and "change".
 const addInputListeners = (input, container) => {
+  let isHandlingInput = false; // Flag to prevent multiple triggers
+
   const handleInputEvent = () => {
-    if (gameOver) return
+    if (gameOver || isHandlingInput) return;
+    isHandlingInput = true; // Set flag to true
     if (checkGuessComplete(container)) {
       const guess = Array.from(container.querySelectorAll("input"))
         .map((inp) => inp.value)
-        .join("")
+        .join("");
       if (guess === secretWord) {
-        gameOver = true
+        gameOver = true;
         Array.from(container.querySelectorAll("input")).forEach((inp) => {
-          inp.style.borderColor = "green"
-        })
+          inp.style.borderColor = "green";
+        });
         document.getElementById("message").textContent =
-          `You guessed the word in ${guessCount} guesses!`
+          `You guessed the word in ${guessCount} guesses!`;
       } else {
-        colorInputs(container)
-        pushGuessBlock(wordLength)
+        colorInputs(container);
+        pushGuessBlock(wordLength);
       }
     }
-  }
+    isHandlingInput = false; // Reset flag after handling input
+  };
 
   // We listen to multiple events to ensure iOS Safari triggers our check
-  ;["input", "keyup", "change"].forEach((evt) => {
+  ["input", "keyup", "change"].forEach((evt) => {
     input.addEventListener(evt, (e) => {
-      if (gameOver) return
+      if (gameOver) return;
       if (input.value !== "") {
-        const nextInput = input.nextElementSibling
-        if (nextInput) nextInput.focus()
+        const nextInput = input.nextElementSibling;
+        
+	if (nextInput) {
+	  setTimeout(() => nextInput.focus(), 0);
+	}
+	// if (nextInput) nextInput.focus();
       }
-      handleInputEvent()
-    })
-  })
-}
+      handleInputEvent();
+    });
+  });
+};
 
 const checkGuessComplete = (container) => {
   const inputs = container.querySelectorAll("input")
@@ -69,6 +80,7 @@ const colorInputs = (container) => {
     } else {
       inp.style.borderColor = "#ca3555"
     }
+    inp.disabled = true;
   })
 }
 
